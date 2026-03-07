@@ -142,10 +142,10 @@ export default function Home() {
               </p>
             </FadeUp>
             <FadeUp delay={.18}>
-              <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:40}}>
-                <a href="#kits" className="btn btn-primary">Explore Kits <ArrowRight size={16}/></a>
-                <a href={WA} target="_blank" rel="noopener noreferrer" className="btn" style={{background:"#25D366",color:"#fff"}}><MessageCircle size={15}/> WhatsApp Us</a>
-                <a href="#how" className="btn btn-ghost"><Play size={14} style={{color:"var(--teal)"}}/> How It Works</a>
+              <div className="hero-btns" style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:40}}>
+                <a href="#kits" className="btn btn-primary hero-btn">Explore Kits <ArrowRight size={16}/></a>
+                <a href={WA} target="_blank" rel="noopener noreferrer" className="btn hero-btn" style={{background:"#25D366",color:"#fff"}}><MessageCircle size={15}/> WhatsApp</a>
+                <a href="#how" className="btn btn-ghost hero-btn"><Play size={14} style={{color:"var(--teal)"}}/> How It Works</a>
               </div>
             </FadeUp>
             <FadeUp delay={.22}>
@@ -165,7 +165,7 @@ export default function Home() {
                 <div className="anim-spin-slow" style={{position:"absolute",width:"72%",height:"72%",borderRadius:"50%",border:"1px dashed rgba(0,210,198,.08)",animationDirection:"reverse"}}/>
               </div>
               <motion.div className="anim-float" style={{position:"relative",zIndex:2}}>
-                <img src="https://res.cloudinary.com/drwys1ksu/image/upload/v1772905378/PICO_Bot_transperent_bg_pgzqkj.png" alt="PICO Bot Robot" style={{width:"100%",height:"auto",display:"block",filter:"drop-shadow(0 24px 48px rgba(0,210,198,.28))"}}/>
+                <img src="https://res.cloudinary.com/drwys1ksu/image/upload/v1772909280/pico_bot_transp_uipkeg.png" alt="PICO Bot Robot" style={{width:"100%",height:"auto",display:"block",filter:"drop-shadow(0 24px 48px rgba(0,210,198,.28))"}}/>
               </motion.div>
               {/* Floating badges — hidden on mobile via CSS */}
               {[
@@ -194,6 +194,9 @@ export default function Home() {
             .hero-sub{font-size:14px!important;text-align:center}
             .hero-badge{padding:5px 9px!important;font-size:10px!important}
             .hero-badge svg{width:10px!important;height:10px!important}
+            .hero-btns{flex-wrap:nowrap!important;gap:7px!important;justify-content:center}
+            .hero-btn{padding:9px 13px!important;font-size:12px!important;flex-shrink:0}
+            .hero-btn svg{width:13px!important;height:13px!important}
           }
         `}</style>
       </section>
@@ -202,24 +205,40 @@ export default function Home() {
       <section style={{background:"linear-gradient(135deg,var(--navy-2),var(--navy-3))",borderTop:"1px solid var(--border)",borderBottom:"1px solid var(--border)",padding:"40px 24px"}}>
         <div style={{maxWidth:1200,margin:"0 auto"}}>
           <p style={{textAlign:"center",fontSize:12,fontWeight:800,color:"var(--teal)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:24}}>⭐ Why Parents Trust Us</p>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16}} className="trust-grid">
+          <div className="trust-wrap"><div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16}} className="trust-grid">
             {[
-              {icon:"🛡️",title:"RoHS Certified",sub:"Fully child-safe components"},
-              {icon:"🎓",title:"STEM Aligned",sub:"CBSE/ICSE curriculum ready"},
-              {icon:"📦",title:"All Parts Included",sub:"Nothing extra to buy"},
+              {icon:"🛡️",title:"RoHS Certified",sub:"Child-safe components"},
+              {icon:"🎓",title:"STEM Aligned",sub:"CBSE/ICSE ready"},
+              {icon:"📦",title:"All Included",sub:"Nothing extra needed"},
               {icon:"↩️",title:"30-Day Returns",sub:"Risk-free purchase"},
             ].map(t=>(
-              <div key={t.title} style={{display:"flex",alignItems:"center",gap:14,background:"rgba(255,255,255,.03)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
-                <div style={{fontSize:28,flexShrink:0}}>{t.icon}</div>
+              <div key={t.title} style={{display:"flex",alignItems:"center",gap:12,background:"rgba(255,255,255,.03)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
+                <div className="ti" style={{fontSize:28,flexShrink:0}}>{t.icon}</div>
                 <div>
-                  <div style={{fontSize:13,fontWeight:800,color:"#fff"}}>{t.title}</div>
-                  <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{t.sub}</div>
+                  <div className="tt" style={{fontSize:13,fontWeight:800,color:"#fff"}}>{t.title}</div>
+                  <div className="ts" style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{t.sub}</div>
                 </div>
               </div>
             ))}
-          </div>
+          </div></div>
         </div>
-        <style>{`.trust-grid{grid-template-columns:repeat(4,1fr)}@media(max-width:700px){.trust-grid{grid-template-columns:repeat(2,1fr)!important}}`}</style>
+        <style>{`
+          .trust-grid{grid-template-columns:repeat(4,1fr);gap:16px}
+          @media(max-width:700px){
+            .trust-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+            .trust-wrap::-webkit-scrollbar{display:none}
+            .trust-grid{
+              grid-template-columns:repeat(4,minmax(140px,1fr))!important;
+              gap:10px!important;
+              width:max-content;
+              min-width:100%
+            }
+            .trust-grid>div{padding:12px 14px!important;border-radius:12px!important}
+            .trust-grid .ti{font-size:20px!important}
+            .trust-grid .tt{font-size:11px!important}
+            .trust-grid .ts{font-size:10px!important;margin-top:1px!important}
+          }
+        `}</style>
       </section>
 
       {/* ══ MARQUEE ══ */}
@@ -243,8 +262,8 @@ export default function Home() {
           </div></FadeUp>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}} className="kits-grid">
             {KITS.map((kit,i)=>(
-              <FadeUp key={kit.id} delay={i*.07}>
-                <div className="kit-card" style={{height:"100%"}}>
+              <FadeUp key={kit.id} delay={i*.07} style={{height:"100%",display:"flex",flexDirection:"column"}}>
+                <div className="kit-card" style={{height:"100%",display:"flex",flexDirection:"column"}}>
                   <div className="kit-card-img" style={{background:"var(--navy-3)"}}>
                     <img src={kit.image} alt={kit.name}/>
                     <div style={{position:"absolute",top:12,left:12,background:kit.accent,color:"#070d1a",padding:"4px 12px",borderRadius:99,fontSize:11,fontWeight:800}}>{kit.badge}</div>
@@ -255,21 +274,23 @@ export default function Home() {
                       <h3 style={{fontSize:16,fontWeight:800,color:"#fff",lineHeight:1.3,marginBottom:4}}>{kit.name}</h3>
                       <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.6}}>{kit.tagline}</p>
                     </div>
-                    <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:7}}>
+                    <ul className="kit-bullets" style={{listStyle:"none",display:"flex",flexDirection:"column",gap:7}}>
                       {kit.bullets.map(b=>(
                         <li key={b} style={{display:"flex",alignItems:"center",gap:7,fontSize:13,color:"#cbd5e1"}}>
                           <CheckCircle size={12} style={{color:kit.accent,flexShrink:0}}/>{b}
                         </li>
                       ))}
                     </ul>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:14,borderTop:"1px solid var(--border)",marginTop:"auto"}}>
+                    <div className="kit-price-row" style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:14,borderTop:"1px solid var(--border)",marginTop:"auto"}}>
                       <div>
-                        <div style={{fontSize:10,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".07em"}}>Starting at</div>
-                        <div style={{fontSize:23,fontWeight:900,color:"#fff",lineHeight:1.1}}>₹{kit.price.toLocaleString("en-IN")}</div>
+                        <div className="price-label" style={{fontSize:10,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".07em"}}>Starting at</div>
+                        <div className="price-val" style={{fontSize:23,fontWeight:900,color:"#fff",lineHeight:1.1}}>₹{kit.price.toLocaleString("en-IN")}</div>
                       </div>
                       <a href={`https://thinkingrobot.in/products/${kit.slug}`} target="_blank" rel="noopener noreferrer"
+                        className="kit-buy-btn"
                         style={{display:"inline-flex",alignItems:"center",gap:5,background:kit.accentBg,color:kit.accent,border:`1px solid ${kit.accent}50`,padding:"9px 15px",borderRadius:99,fontSize:12,fontWeight:800,transition:"transform .15s",flexShrink:0}}
-                        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+                        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}
+                      >
                         Buy Now <ChevronRight size={13}/>
                       </a>
                     </div>
@@ -287,7 +308,26 @@ export default function Home() {
               </a>
             </FadeUp>
           </div>
-          <style>{`.kits-grid{grid-template-columns:repeat(3,1fr)}@media(max-width:900px){.kits-grid{grid-template-columns:repeat(2,1fr)!important}}@media(max-width:480px){.kits-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}}`}</style>
+          <style>{`
+            .kits-grid{grid-template-columns:repeat(3,1fr)}
+            @media(max-width:900px){.kits-grid{grid-template-columns:repeat(2,1fr)!important}}
+            @media(max-width:600px){
+              .kits-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;align-items:start!important}
+              .kit-card-img{height:120px!important}
+              .kit-card-body{padding:10px!important;gap:6px!important}
+              .kit-card-body h3{font-size:12px!important;line-height:1.25!important;margin-bottom:0!important}
+              .kit-card-body>div>p{font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block!important;color:var(--muted)}
+              .kit-bullets{display:flex!important;gap:4px!important}
+              .kit-bullets li{font-size:10px!important;gap:4px!important}
+              .kit-bullets li:nth-child(n+3){display:none!important}
+              .kit-bullets li svg{width:10px!important;height:10px!important;flex-shrink:0}
+              .kit-price-row{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;padding-top:8px!important;flex-wrap:nowrap}
+              .kit-price-row .price-label{display:none!important}
+              .kit-price-row .price-val{font-size:16px!important;font-weight:900!important}
+              .kit-buy-btn{padding:7px 10px!important;font-size:11px!important;border-radius:8px!important;flex-shrink:0;gap:3px!important;white-space:nowrap}
+              .kit-buy-btn svg{width:11px!important;height:11px!important}
+            }
+          `}</style>
         </div>
       </section>
 
