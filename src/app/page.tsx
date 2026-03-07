@@ -1,1182 +1,550 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
-  ShoppingCart, Play, Menu, X, ArrowRight, Star,
-  ChevronRight, CheckCircle, Zap, Shield, Cpu, Leaf,
-  Wifi, Code2,
+  ShoppingCart, Play, Menu, X, ArrowRight, Star, ChevronRight,
+  CheckCircle, Zap, Shield, Cpu, Leaf, Wifi, Code2, ChevronLeft, MessageCircle,
 } from "lucide-react";
 
-/* ══════════════════════════════════════════════════════════════
-   DATA
-══════════════════════════════════════════════════════════════ */
+/* ── Constants ─────────────────────────────────────── */
+const WA = `https://wa.me/918275478093?text=${encodeURIComponent("Hi Thinking Robot! 👋 I'm interested in your PICO BOT kits. Can you help me choose the right one?")}`;
+const SITE = "https://thinkingrobot.in";
+const DOCS = "https://trc-docs.vercel.app/";
+const IG   = "https://www.instagram.com/thinkingrobotlab/";
+const FB   = "https://www.facebook.com/profile.php?id=100087056118040";
+const TW   = "https://x.com/";
+
+/* ── Data ──────────────────────────────────────────── */
 const KITS = [
-  {
-    id: "mini-arduino",
-    name: "Mini Arduino Starter Kit",
-    badge: "Beginner",
-    price: 1899,
-    slug: "mini-arduino-starter-kit-thinking-robot-compact-beginner-pack",
-    image: "https://res.cloudinary.com/drwys1ksu/image/upload/v1770877019/Electronics-Mini-Kit_y3xsua.png",
-    tagline: "Your first step into electronics & coding",
-    bullets: ["20+ components included", "Block coding ready", "Breadboard prototyping", "Beginner tutorials"],
-    age: "Ages 8+",
-    accent: "#22c55e",
-    accentBg: "rgba(34,197,94,0.10)",
-  },
-  {
-    id: "iot-esp32",
-    name: "IoT Beginners Kit",
-    badge: "Wi-Fi Ready",
-    price: 1899,
-    slug: "iot-kit-for-beginners-esp32-wireless-development-kit-thinking-robot-complete-starter-pack",
-    image: "https://res.cloudinary.com/drwys1ksu/image/upload/v1770876991/IoT-Beginners-Pack-630x630_c2gz3b.png",
-    tagline: "Connect to the internet & build smart devices",
-    bullets: ["ESP32 Wi-Fi + Bluetooth", "IoT sensors included", "App control ready", "Cloud integration"],
-    age: "Ages 10+",
-    accent: "#38bdf8",
-    accentBg: "rgba(56,189,248,0.10)",
-  },
-  {
-    id: "arduino-ultimate",
-    name: "Arduino All-in-One Kit",
-    badge: "Complete Pack",
-    price: 2299,
-    slug: "arduino-all-in-one-ultimate-starter-kit-thinking-robot-complete-beginner-pack",
-    image: "https://res.cloudinary.com/drwys1ksu/image/upload/v1770877011/30-IN-ONE-ARDUINO-KIT-630x630_exvsmd.png",
-    tagline: "Master robotics with 30+ sensors & actuators",
-    bullets: ["30+ components", "Motors, servos & LEDs", "Tutorials & guides", "Python + C++ ready"],
-    age: "Ages 10+",
-    accent: "#ff6b35",
-    accentBg: "rgba(255,107,53,0.10)",
-  },
-  {
-    id: "pico-bot-robot",
-    name: "PICO Bot 4-Wheel Robot",
-    badge: "⭐ Most Popular",
-    price: 2999,
-    slug: "pico-bot-4-wheel-robot-with-esp32-edition-thinking-robot-modular-robotics-kit",
-    image: "https://res.cloudinary.com/drwys1ksu/image/upload/v1770959243/1_eqn481.png",
-    tagline: "Build your own robot — then code it to move!",
-    bullets: ["ESP32 powered", "4-wheel drive chassis", "Bluetooth control", "Obstacle avoidance"],
-    age: "Ages 10+",
-    accent: "#ffd60a",
-    accentBg: "rgba(255,214,10,0.10)",
-  },
-  {
-    id: "plant-monitor",
-    name: "Smart Plant Monitoring Kit",
-    badge: "IoT Project",
-    price: 899,
-    slug: "smart-plant-monitoring-and-watering-kit-esp8266-automated-gardening-system",
-    image: "https://res.cloudinary.com/drwys1ksu/image/upload/v1770876706/Screenshot_1_v71dbi.png",
-    tagline: "Build an automated smart garden system",
-    bullets: ["ESP8266 Wi-Fi board", "App-controlled watering", "Moisture & humidity sensors", "Manual + auto modes"],
-    age: "Ages 12+",
-    accent: "#a78bfa",
-    accentBg: "rgba(167,139,250,0.10)",
-  },
+  { id:"mini", name:"Mini Arduino Starter Kit", badge:"Beginner", price:1899, age:"Ages 8+", accent:"#22c55e", accentBg:"rgba(34,197,94,.10)", slug:"mini-arduino-starter-kit-thinking-robot-compact-beginner-pack", image:"https://res.cloudinary.com/drwys1ksu/image/upload/v1770877019/Electronics-Mini-Kit_y3xsua.png", tagline:"Your first step into electronics & coding", bullets:["20+ components included","Block coding ready","Breadboard prototyping","Beginner tutorials"] },
+  { id:"iot",  name:"IoT Beginners Kit",         badge:"Wi-Fi", price:1899, age:"Ages 10+", accent:"#38bdf8", accentBg:"rgba(56,189,248,.10)", slug:"iot-kit-for-beginners-esp32-wireless-development-kit-thinking-robot-complete-starter-pack", image:"https://res.cloudinary.com/drwys1ksu/image/upload/v1770876991/IoT-Beginners-Pack-630x630_c2gz3b.png", tagline:"Connect to the internet & build smart devices", bullets:["ESP32 Wi-Fi + Bluetooth","IoT sensors included","App control ready","Cloud integration"] },
+  { id:"aio",  name:"Arduino All-in-One Kit",    badge:"Complete", price:2299, age:"Ages 10+", accent:"#ff6b35", accentBg:"rgba(255,107,53,.10)", slug:"arduino-all-in-one-ultimate-starter-kit-thinking-robot-complete-beginner-pack", image:"https://res.cloudinary.com/drwys1ksu/image/upload/v1770877011/30-IN-ONE-ARDUINO-KIT-630x630_exvsmd.png", tagline:"Master robotics with 30+ sensors & actuators", bullets:["30+ components","Motors, servos & LEDs","Tutorials & guides","Python + C++ ready"] },
+  { id:"pico", name:"PICO Bot 4-Wheel Robot",   badge:"⭐ Popular", price:2999, age:"Ages 10+", accent:"#ffd60a", accentBg:"rgba(255,214,10,.10)", slug:"pico-bot-4-wheel-robot-with-esp32-edition-thinking-robot-modular-robotics-kit", image:"https://res.cloudinary.com/drwys1ksu/image/upload/v1770959243/1_eqn481.png", tagline:"Build your own robot — then code it to move!", bullets:["ESP32 powered","4-wheel drive chassis","Bluetooth control","Obstacle avoidance"] },
+  { id:"plant",name:"Smart Plant Monitoring Kit",badge:"IoT Project", price:899, age:"Ages 12+", accent:"#a78bfa", accentBg:"rgba(167,139,250,.10)", slug:"smart-plant-monitoring-and-watering-kit-esp8266-automated-gardening-system", image:"https://res.cloudinary.com/drwys1ksu/image/upload/v1770876706/Screenshot_1_v71dbi.png", tagline:"Build an automated smart garden system", bullets:["ESP8266 Wi-Fi board","App-controlled watering","Moisture & humidity sensors","Manual + auto modes"] },
 ];
 
 const FEATURES = [
-  { icon: "⚡", title: "Hands-On Learning", desc: "Build real circuits, not simulations. Every kit comes with working components and guided projects.", accent: "#ffd60a" },
-  { icon: "📱", title: "App & Bluetooth Ready", desc: "Control your builds wirelessly from any Android or iOS device via Bluetooth or Wi-Fi.", accent: "#38bdf8" },
-  { icon: "🎓", title: "Curriculum Aligned", desc: "Projects aligned with CBSE, ICSE, and international STEM curricula. Great for school projects too.", accent: "#22c55e" },
-  { icon: "📦", title: "Everything Included", desc: "Every wire, sensor, and component needed for the included projects comes in the box.", accent: "#ff6b35" },
-  { icon: "🛡️", title: "Safe & Tested", desc: "All components are child-safe, RoHS compliant, and tested for classroom and home use.", accent: "#a78bfa" },
-  { icon: "🔧", title: "Real Support", desc: "Got stuck? WhatsApp us, email us, or join our Discord community. Free help, 7 days a week.", accent: "#00d2c6" },
+  { icon:"⚡", illus:"🔌", title:"Hands-On Learning",     desc:"Build real circuits, not simulations. Every kit comes with working components and guided projects.", accent:"#ffd60a" },
+  { icon:"📱", illus:"🛰️", title:"App & Bluetooth Ready", desc:"Control your builds wirelessly from any Android or iOS device via Bluetooth or Wi-Fi.", accent:"#38bdf8" },
+  { icon:"🎓", illus:"📘", title:"Curriculum Aligned",    desc:"Projects aligned with CBSE, ICSE, and international STEM curricula. School project ready.", accent:"#22c55e" },
+  { icon:"📦", illus:"🎁", title:"Everything Included",   desc:"Every wire, sensor, and component you need for included projects — open the box and start.", accent:"#ff6b35" },
+  { icon:"🛡️", illus:"✅", title:"Safe & Tested",        desc:"All components are child-safe, RoHS compliant, and tested for classroom and home use.", accent:"#a78bfa" },
+  { icon:"🔧", illus:"💬", title:"Real Support",          desc:"Got stuck? WhatsApp us, email us, or join our Discord community — free help 7 days a week.", accent:"#00d2c6" },
 ];
 
 const REVIEWS = [
-  { name: "Priya Sharma", role: "Parent of Arjun, age 11", text: "My son assembled the PICO Bot in one afternoon and won't stop talking about it. He's writing actual Python now — I can't believe it!", rating: 5, initial: "P", accent: "#00d2c6" },
-  { name: "Rajesh Patel", role: "Science Teacher, DPS Pune", text: "We ordered 3 Arduino kits for our school lab. The quality is fantastic and the docs are so clear — students get up and running in minutes.", rating: 5, initial: "R", accent: "#ff6b35" },
-  { name: "Ananya Gupta", role: "Parent of twins, age 9 & 13", text: "Both my kids use different kits and both love them! Great quality for the price — much better than imported alternatives.", rating: 5, initial: "A", accent: "#22c55e" },
-  { name: "Dr. Vikram Mehta", role: "EdTech Consultant", text: "Finally an Indian STEM brand doing it right. The IoT kit is perfectly curated — nothing missing, nothing unnecessary. Full marks.", rating: 5, initial: "V", accent: "#a78bfa" },
+  { name:"Priya Sharma",    role:"Parent · Mumbai",              text:"My son assembled the PICO Bot in one afternoon and won't stop talking about it. He's writing actual Python now — I can't believe it!", rating:5, initial:"P", accent:"#00d2c6" },
+  { name:"Sunita Deshmukh", role:"आई · Kolhapur",                text:"माझ्या मुलाने PICO Bot घरात बनवला आणि आता तो स्वतः Python वर code करतो! खूपच innovative आहे — पैशाचं value मिळालं नक्की. 🙏", rating:5, initial:"S", accent:"#22c55e" },
+  { name:"Rajesh Kharpude", role:"Science Teacher · DPS Nashik", text:"We ordered 3 Arduino kits for our school lab. Quality is fantastic and docs so clear — students are up and running in minutes. Excellent for CBSE projects.", rating:5, initial:"R", accent:"#ff6b35" },
+  { name:"Pratik Kamble",   role:"9th Grade Student · Kolhapur", text:"Bro this kit is 🔥! Arduino All-in-One madhe 30 sensors ahet — I made a smart home model for science expo and won 1st place in district! 100% recommend!", rating:5, initial:"P", accent:"#ffd60a" },
+  { name:"Ananya Gupta",    role:"Parent of twins · Pune",       text:"Both my kids use different kits and both love them. The online guides are excellent. Way better quality than imported options at this price.", rating:5, initial:"A", accent:"#a78bfa" },
+  { name:"Dr. Vikram Mehta",role:"EdTech Consultant · Bangalore",text:"Finally an Indian STEM brand doing it right. The IoT kit is perfectly curated — nothing missing, nothing unnecessary. Full marks.", rating:5, initial:"V", accent:"#38bdf8" },
 ];
 
-/* ══════════════════════════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════════════════════════ */
-
-// Staggered fade-up with viewport trigger
-function FadeUp({
-  children,
-  delay = 0,
-  style,
-  className,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  style?: React.CSSProperties;
-  className?: string;
-}) {
+/* ── Helpers ───────────────────────────────────────── */
+function FadeUp({ children, delay=0, style, className }: { children:React.ReactNode; delay?:number; style?:React.CSSProperties; className?:string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      style={style}
-      className={className}
-    >
+    <motion.div initial={{opacity:0,y:28}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-60px"}} transition={{duration:.6,delay,ease:[.22,1,.36,1]}} style={style} className={className}>
       {children}
     </motion.div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════
    PAGE
-══════════════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen]     = useState(false);
+  const [reviewIdx, setReviewIdx]   = useState(0);
+  const dragStartX                  = useRef(0);
+
+  const prevReview = () => setReviewIdx(i => Math.max(0, i-1));
+  const nextReview = () => setReviewIdx(i => Math.min(REVIEWS.length-1, i+1));
 
   return (
-    <div style={{ background: "var(--navy)", minHeight: "100vh", overflowX: "hidden" }}>
+    <div style={{background:"var(--navy)",minHeight:"100vh",overflowX:"hidden"}}>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  NAVBAR  (fixed, 68px tall)               ║
-          ╚═══════════════════════════════════════════╝ */}
-      <header
-        className="glass"
-        style={{
-          position: "fixed",
-          top: 0, left: 0, right: 0,
-          height: "var(--nav-h)",
-          zIndex: 100,
-          borderBottom: "1px solid var(--border)",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "0 24px",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 16,
-          }}
-        >
-          {/* Logo */}
-          <a href="#" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-            <Image src="/logo.png" alt="Thinking Robot" width={38} height={38}
-              style={{ borderRadius: 9, display: "block" }} />
+      {/* ══ NAVBAR ══ */}
+      <header className="glass" style={{position:"fixed",top:0,left:0,right:0,height:"var(--nav-h)",zIndex:100,borderBottom:"1px solid var(--border)"}}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px",height:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <a href="#" style={{display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+            <Image src="/logo.png" alt="Thinking Robot" width={36} height={36} style={{borderRadius:8,display:"block"}} />
             <div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>
-                PICO BOT
-              </div>
-              <div style={{ fontSize: 9, color: "var(--muted)", letterSpacing: "0.09em", textTransform: "uppercase" }}>
-                BY THINKING ROBOT
-              </div>
+              <div style={{fontSize:16,fontWeight:900,color:"#fff",letterSpacing:"-.02em",lineHeight:1}}>PICO BOT</div>
+              <div style={{fontSize:9,color:"var(--muted)",letterSpacing:".09em",textTransform:"uppercase"}}>BY THINKING ROBOT</div>
             </div>
           </a>
 
-          {/* Desktop nav links */}
-          <nav
-            className="hide-sm"
-            style={{ display: "flex", alignItems: "center", gap: 28 }}
-          >
-            {["Our Kits|#kits", "Features|#features", "How It Works|#how", "Reviews|#reviews"].map(item => {
-              const [label, href] = item.split("|");
-              return (
-                <a key={href} href={href}
-                  style={{ fontSize: 14, fontWeight: 600, color: "var(--muted)", transition: "color 0.15s" }}
-                  onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
-                >
-                  {label}
-                </a>
-              );
-            })}
+          <nav style={{display:"flex",alignItems:"center",gap:24}} className="nav-desktop">
+            {[["Our Kits","#kits"],["Features","#features"],["How It Works","#how"],["Reviews","#reviews"],["Docs",DOCS]].map(([l,h]) => (
+              <a key={h} href={h} target={h.startsWith("http")?"_blank":undefined} rel="noopener noreferrer" style={{fontSize:13,fontWeight:600,color:"var(--muted)",transition:"color .15s"}} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="var(--muted)"}>{l}</a>
+            ))}
           </nav>
 
-          {/* CTA + Hamburger */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-            <a href="#kits" className="btn btn-primary hide-sm">
-              <ShoppingCart size={15} /> Shop Now
+          <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="btn btn-wa nav-desktop" style={{background:"#25D366",color:"#fff",fontSize:13,padding:"9px 16px"}}>
+              <MessageCircle size={14}/> WhatsApp
             </a>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              style={{
-                display: "none",
-                padding: "8px 10px",
-                borderRadius: 10,
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid var(--border)",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-              className="show-mobile-menu"
-              aria-label="Toggle menu"
-            >
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            <a href="#kits" className="btn btn-primary nav-desktop" style={{fontSize:13,padding:"9px 16px"}}>
+              <ShoppingCart size={14}/> Shop
+            </a>
+            <button onClick={()=>setMenuOpen(!menuOpen)} className="nav-mobile" style={{padding:"8px 10px",borderRadius:10,background:"rgba(255,255,255,.05)",border:"1px solid var(--border)",color:"#fff",cursor:"pointer",display:"none"}} aria-label="menu">
+              {menuOpen ? <X size={20}/> : <Menu size={20}/>}
             </button>
           </div>
         </div>
 
-        {/* Mobile dropdown */}
         <AnimatePresence>
           {menuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.22, ease: "easeInOut" }}
-              style={{
-                overflow: "hidden",
-                background: "var(--navy-2)",
-                borderTop: "1px solid var(--border)",
-              }}
-            >
-              <div style={{ padding: "16px 24px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
-                {["Our Kits|#kits", "Features|#features", "How It Works|#how", "Reviews|#reviews"].map(item => {
-                  const [label, href] = item.split("|");
-                  return (
-                    <a key={href} href={href}
-                      onClick={() => setMenuOpen(false)}
-                      style={{ fontSize: 15, fontWeight: 600, color: "var(--text)" }}
-                    >
-                      {label}
-                    </a>
-                  );
-                })}
-                <a href="#kits" className="btn btn-primary" style={{ marginTop: 4, justifyContent: "center" }}
-                  onClick={() => setMenuOpen(false)}>
-                  <ShoppingCart size={15} /> Shop Now
-                </a>
+            <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} transition={{duration:.22}} style={{overflow:"hidden",background:"var(--navy-2)",borderTop:"1px solid var(--border)"}}>
+              <div style={{padding:"16px 24px 20px",display:"flex",flexDirection:"column",gap:12}}>
+                {[["Our Kits","#kits"],["Features","#features"],["How It Works","#how"],["Reviews","#reviews"],["Tutorials",DOCS]].map(([l,h])=>(
+                  <a key={h} href={h} onClick={()=>setMenuOpen(false)} target={h.startsWith("http")?"_blank":undefined} rel="noopener noreferrer" style={{fontSize:15,fontWeight:600,color:"var(--text)"}}>{l}</a>
+                ))}
+                <div style={{display:"flex",gap:10,marginTop:6}}>
+                  <a href={WA} target="_blank" rel="noopener noreferrer" className="btn" style={{flex:1,justifyContent:"center",background:"#25D366",color:"#fff",fontSize:13}}><MessageCircle size={14}/> WhatsApp</a>
+                  <a href="#kits" className="btn btn-primary" onClick={()=>setMenuOpen(false)} style={{flex:1,justifyContent:"center",fontSize:13}}><ShoppingCart size={14}/> Shop</a>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </header>
 
-      {/* Force mobile hamburger to show */}
       <style>{`
-        @media (max-width: 768px) {
-          .show-mobile-menu { display: flex !important; }
-          .hide-sm { display: none !important; }
-        }
+        @media(max-width:768px){.nav-desktop{display:none!important}.nav-mobile{display:flex!important}}
+        @media(min-width:769px){.nav-mobile{display:none!important}}
       `}</style>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  HERO                                     ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section
-        className="dot-bg"
-        style={{
-          paddingTop: "calc(var(--nav-h) + 72px)",
-          paddingBottom: 96,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Background glow orbs */}
-        <div style={{
-          position: "absolute", top: "var(--nav-h)", left: "50%", transform: "translateX(-50%)",
-          width: 700, height: 500, pointerEvents: "none",
-          background: "radial-gradient(ellipse, rgba(0,210,198,0.10) 0%, transparent 65%)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: 0, right: 0,
-          width: 400, height: 400, pointerEvents: "none",
-          background: "radial-gradient(ellipse at bottom right, rgba(255,107,53,0.07) 0%, transparent 70%)",
-        }} />
-
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "0 24px",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 64,
-            alignItems: "center",
-          }}
-          className="hero-grid"
-        >
-          {/* Left col */}
-          <div>
+      {/* ══ HERO ══ */}
+      <section className="dot-bg" style={{paddingTop:"calc(var(--nav-h) + 64px)",paddingBottom:80,position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:"var(--nav-h)",left:"50%",transform:"translateX(-50%)",width:700,height:500,pointerEvents:"none",background:"radial-gradient(ellipse,rgba(0,210,198,.10) 0%,transparent 65%)"}}/>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px"}} className="hero-grid">
+          {/* Text */}
+          <div style={{display:"flex",flexDirection:"column",gap:0}}>
             <FadeUp>
-              <span className="tag-pill" style={{ marginBottom: 24, display: "inline-flex" }}>
-                <span className="anim-pulse-dot"
-                  style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--teal)", flexShrink: 0 }} />
+              <span className="tag-pill" style={{marginBottom:20,display:"inline-flex"}}>
+                <span className="anim-pulse-dot" style={{width:6,height:6,borderRadius:"50%",background:"var(--teal)",flexShrink:0}}/>
                 Now Available Across India 🇮🇳
               </span>
             </FadeUp>
-
-            <FadeUp delay={0.07}>
-              <h1 style={{
-                fontSize: "clamp(36px, 5.5vw, 64px)",
-                fontWeight: 900,
-                lineHeight: 1.08,
-                letterSpacing: "-0.03em",
-                color: "#fff",
-                marginBottom: 20,
-              }}>
-                Build Robots.<br />
-                <span className="grad-teal">Learn to Code.</span><br />
-                <span style={{ color: "#e2e8f0" }}>Have a Blast.</span>
+            <FadeUp delay={.07}>
+              <h1 className="hero-h1">
+                Build Robots.<br/>
+                <span className="grad-teal">Learn to Code.</span><br/>
+                <span style={{color:"#e2e8f0"}}>Shape the Future.</span>
               </h1>
             </FadeUp>
-
-            <FadeUp delay={0.13}>
-              <p style={{ fontSize: 17, lineHeight: 1.75, color: "var(--muted)", marginBottom: 36, maxWidth: 480 }}>
-                India&apos;s favourite robotics & electronics kits for kids and beginners.
-                From your first LED to a 4-wheel Wi-Fi robot — we&apos;ve got the kit for you.
+            <FadeUp delay={.13}>
+              <p className="hero-sub" style={{fontSize:17,lineHeight:1.75,color:"var(--muted)",marginBottom:32,maxWidth:480}}>
+                India&apos;s favourite robotics & electronics kits for kids and beginners. From your first LED to a 4-wheel Wi-Fi robot.
               </p>
             </FadeUp>
-
-            <FadeUp delay={0.18}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 44 }}>
-                <a href="#kits" className="btn btn-primary">
-                  Explore All Kits <ArrowRight size={17} />
-                </a>
-                <a href="#how" className="btn btn-ghost">
-                  <Play size={15} style={{ color: "var(--teal)" }} /> How It Works
-                </a>
+            <FadeUp delay={.18}>
+              <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:40}}>
+                <a href="#kits" className="btn btn-primary">Explore Kits <ArrowRight size={16}/></a>
+                <a href={WA} target="_blank" rel="noopener noreferrer" className="btn" style={{background:"#25D366",color:"#fff"}}><MessageCircle size={15}/> WhatsApp Us</a>
+                <a href="#how" className="btn btn-ghost"><Play size={14} style={{color:"var(--teal)"}}/> How It Works</a>
               </div>
             </FadeUp>
-
-            <FadeUp delay={0.23}>
-              <div style={{
-                display: "flex",
-                gap: 32,
-                paddingTop: 28,
-                borderTop: "1px solid var(--border)",
-              }}>
-                {[["500+", "Kits Sold"], ["4.9★", "Avg Rating"], ["5", "Kit Options"]].map(([num, label]) => (
-                  <div key={label}>
-                    <div className="stat-num">{num}</div>
-                    <div className="stat-label">{label}</div>
-                  </div>
+            <FadeUp delay={.22}>
+              <div style={{display:"flex",gap:28,paddingTop:24,borderTop:"1px solid var(--border)"}}>
+                {[["500+","Kits Sold"],["4.9★","Avg Rating"],["₹899","Starting Price"]].map(([n,l])=>(
+                  <div key={l}><div className="stat-num">{n}</div><div className="stat-label">{l}</div></div>
                 ))}
               </div>
             </FadeUp>
           </div>
 
-          {/* Right col — robot */}
-          <FadeUp delay={0.15}>
-            <div style={{ position: "relative" }}>
-              {/* Spinning ring decor */}
-              <div style={{
-                position: "absolute",
-                inset: "-10%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                pointerEvents: "none",
-              }}>
-                <div className="anim-spin-slow" style={{
-                  width: "90%", height: "90%", borderRadius: "50%",
-                  border: "1px solid rgba(0,210,198,0.15)",
-                }} />
-                <div className="anim-spin-slow" style={{
-                  position: "absolute",
-                  width: "72%", height: "72%", borderRadius: "50%",
-                  border: "1px dashed rgba(0,210,198,0.08)",
-                  animationDirection: "reverse",
-                }} />
+          {/* Robot */}
+          <FadeUp delay={.14}>
+            <div style={{position:"relative"}}>
+              <div style={{position:"absolute",inset:"-10%",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
+                <div className="anim-spin-slow" style={{width:"90%",height:"90%",borderRadius:"50%",border:"1px solid rgba(0,210,198,.15)"}}/>
+                <div className="anim-spin-slow" style={{position:"absolute",width:"72%",height:"72%",borderRadius:"50%",border:"1px dashed rgba(0,210,198,.08)",animationDirection:"reverse"}}/>
               </div>
-
-              {/* Robot image — transparent background */}
-              <motion.div
-                className="anim-float"
-                style={{ position: "relative", zIndex: 2 }}
-              >
-                <img
-                  src="https://res.cloudinary.com/drwys1ksu/image/upload/v1772905378/PICO_Bot_transperent_bg_pgzqkj.png"
-                  alt="PICO Bot Robot"
-                  style={{ width: "100%", height: "auto", display: "block", filter: "drop-shadow(0 24px 48px rgba(0,210,198,0.25))" }}
-                />
+              <motion.div className="anim-float" style={{position:"relative",zIndex:2}}>
+                <img src="https://res.cloudinary.com/drwys1ksu/image/upload/v1772905378/PICO_Bot_transperent_bg_pgzqkj.png" alt="PICO Bot Robot" style={{width:"100%",height:"auto",display:"block",filter:"drop-shadow(0 24px 48px rgba(0,210,198,.28))"}}/>
               </motion.div>
-
-              {/* Floating badges */}
-              <motion.div
-                animate={{ y: [-8, 8, -8] }}
-                transition={{ repeat: Infinity, duration: 4, delay: 0.3, ease: "easeInOut" }}
-                style={{
-                  position: "absolute", top: "14%", left: "-8%", zIndex: 10,
-                  background: "rgba(7,13,26,0.88)", backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(0,210,198,0.30)",
-                  borderRadius: 99, padding: "9px 17px",
-                  display: "flex", alignItems: "center", gap: 7,
-                  fontSize: 13, fontWeight: 700, color: "var(--teal)",
-                  boxShadow: "0 8px 28px rgba(0,0,0,0.3)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <Wifi size={14} /> Wi-Fi Control
-              </motion.div>
-
-              <motion.div
-                animate={{ y: [8, -8, 8] }}
-                transition={{ repeat: Infinity, duration: 4.5, delay: 0.8, ease: "easeInOut" }}
-                style={{
-                  position: "absolute", bottom: "22%", right: "-8%", zIndex: 10,
-                  background: "rgba(7,13,26,0.88)", backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,107,53,0.30)",
-                  borderRadius: 99, padding: "9px 17px",
-                  display: "flex", alignItems: "center", gap: 7,
-                  fontSize: 13, fontWeight: 700, color: "#ff6b35",
-                  boxShadow: "0 8px 28px rgba(0,0,0,0.3)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <Code2 size={14} /> Block & Python
-              </motion.div>
-
-              <motion.div
-                animate={{ y: [-5, 9, -5] }}
-                transition={{ repeat: Infinity, duration: 5, delay: 1.2, ease: "easeInOut" }}
-                style={{
-                  position: "absolute", bottom: "8%", left: "4%", zIndex: 10,
-                  background: "rgba(7,13,26,0.88)", backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(34,197,94,0.30)",
-                  borderRadius: 99, padding: "9px 17px",
-                  display: "flex", alignItems: "center", gap: 7,
-                  fontSize: 13, fontWeight: 700, color: "#22c55e",
-                  boxShadow: "0 8px 28px rgba(0,0,0,0.3)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <Shield size={14} /> Child Safe
-              </motion.div>
+              {/* Floating badges — hidden on mobile via CSS */}
+              {[
+                {label:"Wi-Fi Control", icon:<Wifi size={12}/>, color:"var(--teal)", border:"rgba(0,210,198,.30)", top:"14%", left:"-10%", dy:[-8,8,-8], dur:4},
+                {label:"Block & Python", icon:<Code2 size={12}/>, color:"#ff6b35", border:"rgba(255,107,53,.30)", bottom:"20%", right:"-10%", dy:[8,-8,8], dur:4.5},
+                {label:"Child Safe", icon:<Shield size={12}/>, color:"#22c55e", border:"rgba(34,197,94,.30)", bottom:"6%", left:"6%", dy:[-5,9,-5], dur:5},
+              ].map(({label,icon,color,border,top,left,bottom,right,dy,dur})=>(
+                <motion.div key={label} animate={{y:dy}} transition={{repeat:Infinity,duration:dur,ease:"easeInOut"}} className="hero-badge"
+                  style={{position:"absolute",top,left,bottom,right,background:"rgba(7,13,26,.90)",backdropFilter:"blur(12px)",border:`1px solid ${border}`,borderRadius:99,padding:"7px 13px",display:"flex",alignItems:"center",gap:6,fontSize:12,fontWeight:700,color,boxShadow:"0 6px 24px rgba(0,0,0,.3)",whiteSpace:"nowrap",zIndex:10}}>
+                  {icon} {label}
+                </motion.div>
+              ))}
             </div>
           </FadeUp>
         </div>
-
-        {/* Make grid single col on mobile */}
         <style>{`
-          .hero-grid {
-            grid-template-columns: 1fr 1fr;
-          }
-          @media (max-width: 768px) {
-            .hero-grid {
-              grid-template-columns: 1fr !important;
-              gap: 48px !important;
-              text-align: center;
-            }
-            .hero-grid > div:first-child {
-              order: 1;
-            }
-            .hero-grid > div:last-child {
-              order: 0;
-              max-width: 360px;
-              margin: 0 auto;
-            }
+          .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+          .hero-h1{font-size:clamp(34px,5.5vw,64px);font-weight:900;line-height:1.08;letter-spacing:-.03em;color:#fff;margin-bottom:18px}
+          .hero-sub{font-size:17px}
+          .hero-badge{}
+          @media(max-width:768px){
+            .hero-grid{grid-template-columns:1fr!important;gap:36px!important}
+            .hero-grid>div:first-child{order:2;text-align:center}
+            .hero-grid>div:last-child{order:1;max-width:300px;margin:0 auto}
+            .hero-h1{font-size:clamp(26px,7vw,38px)!important;text-align:center}
+            .hero-sub{font-size:14px!important;text-align:center}
+            .hero-badge{padding:5px 9px!important;font-size:10px!important}
+            .hero-badge svg{width:10px!important;height:10px!important}
           }
         `}</style>
       </section>
 
-      {/* ── Marquee belt ── */}
-      <div style={{
-        background: "var(--navy-2)",
-        borderTop: "1px solid var(--border)",
-        borderBottom: "1px solid var(--border)",
-        padding: "13px 0",
-      }}>
-        <div className="marquee-wrap">
-          <div className="marquee-inner anim-marquee">
+      {/* ══ TRUST STRIP (Parents teaser — before kits) ══ */}
+      <section style={{background:"linear-gradient(135deg,var(--navy-2),var(--navy-3))",borderTop:"1px solid var(--border)",borderBottom:"1px solid var(--border)",padding:"40px 24px"}}>
+        <div style={{maxWidth:1200,margin:"0 auto"}}>
+          <p style={{textAlign:"center",fontSize:12,fontWeight:800,color:"var(--teal)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:24}}>⭐ Why Parents Trust Us</p>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16}} className="trust-grid">
             {[
-              "⚡ Arduino Powered", "🌐 Wi-Fi & Bluetooth", "🤖 Real Robotics",
-              "🐍 Python Ready", "📦 All Parts Included", "🛡️ Child Safe",
-              "🇮🇳 Made in India", "🎓 STEM Aligned",
-              "⚡ Arduino Powered", "🌐 Wi-Fi & Bluetooth", "🤖 Real Robotics",
-              "🐍 Python Ready", "📦 All Parts Included", "🛡️ Child Safe",
-              "🇮🇳 Made in India", "🎓 STEM Aligned",
-            ].map((t, i) => (
-              <span key={i} style={{
-                display: "inline-flex", alignItems: "center",
-                fontSize: 12, fontWeight: 700, color: "var(--muted)",
-                padding: "0 28px",
-              }}>
-                {t}
-                <span style={{ marginLeft: 28, color: "rgba(255,255,255,0.12)", fontSize: 18 }}>·</span>
-              </span>
+              {icon:"🛡️",title:"RoHS Certified",sub:"Fully child-safe components"},
+              {icon:"🎓",title:"STEM Aligned",sub:"CBSE/ICSE curriculum ready"},
+              {icon:"📦",title:"All Parts Included",sub:"Nothing extra to buy"},
+              {icon:"↩️",title:"30-Day Returns",sub:"Risk-free purchase"},
+            ].map(t=>(
+              <div key={t.title} style={{display:"flex",alignItems:"center",gap:14,background:"rgba(255,255,255,.03)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
+                <div style={{fontSize:28,flexShrink:0}}>{t.icon}</div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:800,color:"#fff"}}>{t.title}</div>
+                  <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{t.sub}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
+        <style>{`.trust-grid{grid-template-columns:repeat(4,1fr)}@media(max-width:700px){.trust-grid{grid-template-columns:repeat(2,1fr)!important}}`}</style>
+      </section>
+
+      {/* ══ MARQUEE ══ */}
+      <div style={{background:"var(--navy-2)",padding:"12px 0"}}>
+        <div className="marquee-wrap"><div className="marquee-inner anim-marquee">
+          {[...Array(2)].flatMap(()=>["⚡ Arduino Powered","🌐 Wi-Fi & Bluetooth","🤖 Real Robotics","🐍 Python Ready","📦 All Parts Included","🛡️ Child Safe","🇮🇳 Made in India","🎓 STEM Aligned"]).map((t,i)=>(
+            <span key={i} style={{display:"inline-flex",alignItems:"center",fontSize:12,fontWeight:700,color:"var(--muted)",padding:"0 28px"}}>
+              {t}<span style={{marginLeft:28,color:"rgba(255,255,255,.12)",fontSize:18}}>·</span>
+            </span>
+          ))}
+        </div></div>
       </div>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  KITS                                     ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section id="kits" className="section" style={{ background: "var(--navy)" }}>
+      {/* ══ KITS ══ */}
+      <section id="kits" className="section" style={{background:"var(--navy)"}}>
         <div className="section-inner">
-
-          {/* Section header */}
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
-              <span className="eyebrow">Our Robotics Kits</span>
-              <h2 className="s-title">
-                Find the Kit That Sparks{" "}
-                <span className="grad-teal">Your Curiosity</span>
-              </h2>
-              <p className="s-sub" style={{ margin: "0 auto" }}>
-                5 thoughtfully curated kits for everyone — from curious 8-year-olds to passionate teen coders.
-              </p>
-            </div>
-          </FadeUp>
-
-          {/* Kit cards grid */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 22,
-          }} className="kits-grid">
-            {KITS.map((kit, i) => (
-              <FadeUp key={kit.id} delay={i * 0.07}>
-                <div className="kit-card" style={{ height: "100%" }}>
-                  {/* Image */}
-                  <div className="kit-card-img">
-                    <img src={kit.image} alt={kit.name} />
-                    {/* Badge top-left */}
-                    <div style={{
-                      position: "absolute", top: 12, left: 12,
-                      background: kit.accent,
-                      color: kit.accent === "#ffd60a" ? "#070d1a" : "#070d1a",
-                      padding: "4px 12px", borderRadius: 99,
-                      fontSize: 11, fontWeight: 800, letterSpacing: "0.04em",
-                    }}>
-                      {kit.badge}
-                    </div>
-                    {/* Age top-right */}
-                    <div style={{
-                      position: "absolute", top: 12, right: 12,
-                      background: "rgba(7,13,26,0.82)", backdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255,255,255,0.10)",
-                      padding: "4px 10px", borderRadius: 99,
-                      fontSize: 11, fontWeight: 700, color: "var(--muted)",
-                    }}>
-                      {kit.age}
-                    </div>
+          <FadeUp><div style={{textAlign:"center",marginBottom:52}}>
+            <span className="eyebrow">Our Robotics Kits</span>
+            <h2 className="s-title">Find the Kit That Sparks <span className="grad-teal">Your Curiosity</span></h2>
+            <p className="s-sub" style={{margin:"0 auto"}}>5 thoughtfully curated kits for everyone — from curious 8-year-olds to passionate teen coders.</p>
+          </div></FadeUp>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}} className="kits-grid">
+            {KITS.map((kit,i)=>(
+              <FadeUp key={kit.id} delay={i*.07}>
+                <div className="kit-card" style={{height:"100%"}}>
+                  <div className="kit-card-img" style={{background:"var(--navy-3)"}}>
+                    <img src={kit.image} alt={kit.name}/>
+                    <div style={{position:"absolute",top:12,left:12,background:kit.accent,color:"#070d1a",padding:"4px 12px",borderRadius:99,fontSize:11,fontWeight:800}}>{kit.badge}</div>
+                    <div style={{position:"absolute",top:12,right:12,background:"rgba(7,13,26,.82)",backdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,.10)",padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:700,color:"var(--muted)"}}>{kit.age}</div>
                   </div>
-
-                  {/* Body */}
                   <div className="kit-card-body">
                     <div>
-                      <h3 style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1.3, marginBottom: 5 }}>
-                        {kit.name}
-                      </h3>
-                      <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
-                        {kit.tagline}
-                      </p>
+                      <h3 style={{fontSize:16,fontWeight:800,color:"#fff",lineHeight:1.3,marginBottom:4}}>{kit.name}</h3>
+                      <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.6}}>{kit.tagline}</p>
                     </div>
-
-                    {/* Bullets */}
-                    <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
-                      {kit.bullets.map(b => (
-                        <li key={b} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#cbd5e1" }}>
-                          <CheckCircle size={13} style={{ color: kit.accent, flexShrink: 0 }} />
-                          {b}
+                    <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:7}}>
+                      {kit.bullets.map(b=>(
+                        <li key={b} style={{display:"flex",alignItems:"center",gap:7,fontSize:13,color:"#cbd5e1"}}>
+                          <CheckCircle size={12} style={{color:kit.accent,flexShrink:0}}/>{b}
                         </li>
                       ))}
                     </ul>
-
-                    {/* Price + Buy */}
-                    <div style={{
-                      display: "flex", alignItems: "center",
-                      justifyContent: "space-between",
-                      marginTop: "auto",
-                      paddingTop: 14,
-                      borderTop: "1px solid var(--border)",
-                    }}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:14,borderTop:"1px solid var(--border)",marginTop:"auto"}}>
                       <div>
-                        <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                          Starting at
-                        </div>
-                        <div style={{ fontSize: 24, fontWeight: 900, color: "#fff", lineHeight: 1.1 }}>
-                          ₹{kit.price.toLocaleString("en-IN")}
-                        </div>
+                        <div style={{fontSize:10,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".07em"}}>Starting at</div>
+                        <div style={{fontSize:23,fontWeight:900,color:"#fff",lineHeight:1.1}}>₹{kit.price.toLocaleString("en-IN")}</div>
                       </div>
-                      <a
-                        href={`https://www.thinkingrobot.in/products/${kit.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "inline-flex", alignItems: "center", gap: 5,
-                          background: kit.accentBg,
-                          color: kit.accent,
-                          border: `1px solid ${kit.accent}50`,
-                          padding: "9px 16px", borderRadius: 99,
-                          fontSize: 13, fontWeight: 800,
-                          transition: "background 0.2s, transform 0.15s",
-                          flexShrink: 0,
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.04)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
-                      >
-                        Buy Now <ChevronRight size={14} />
+                      <a href={`https://thinkingrobot.in/products/${kit.slug}`} target="_blank" rel="noopener noreferrer"
+                        style={{display:"inline-flex",alignItems:"center",gap:5,background:kit.accentBg,color:kit.accent,border:`1px solid ${kit.accent}50`,padding:"9px 15px",borderRadius:99,fontSize:12,fontWeight:800,transition:"transform .15s",flexShrink:0}}
+                        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+                        Buy Now <ChevronRight size={13}/>
                       </a>
                     </div>
                   </div>
                 </div>
               </FadeUp>
             ))}
-
-            {/* Browse all card */}
-            <FadeUp delay={0.38}>
-              <a
-                href="https://www.thinkingrobot.in"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="kit-card"
-                style={{
-                  height: "100%",
-                  minHeight: 300,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 36,
-                  textAlign: "center",
-                  borderStyle: "dashed",
-                  gap: 12,
-                  cursor: "pointer",
-                }}
-              >
-                <div style={{ fontSize: 44 }}>🛒</div>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--teal)" }}>Browse All Products</h3>
-                <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
-                  Explore sensors, boards, modules & more on our full store.
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--teal)", fontWeight: 700, fontSize: 14 }}>
-                  Visit Store <ArrowRight size={15} />
-                </div>
+            <FadeUp delay={.38}>
+              <a href={SITE} target="_blank" rel="noopener noreferrer" className="kit-card"
+                style={{height:"100%",minHeight:280,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center",borderStyle:"dashed",gap:10,cursor:"pointer"}}>
+                <div style={{fontSize:40}}>🛒</div>
+                <h3 style={{fontSize:15,fontWeight:800,color:"var(--teal)"}}>Browse All Products</h3>
+                <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.6}}>Explore sensors, boards, modules & more on our full store.</p>
+                <div style={{display:"flex",alignItems:"center",gap:5,color:"var(--teal)",fontWeight:700,fontSize:13}}>Visit Store <ArrowRight size={13}/></div>
               </a>
             </FadeUp>
           </div>
-
-          <style>{`
-            .kits-grid { grid-template-columns: repeat(3, 1fr); }
-            @media (max-width: 900px)  { .kits-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-            @media (max-width: 540px)  { .kits-grid { grid-template-columns: 1fr !important; } }
-          `}</style>
+          <style>{`.kits-grid{grid-template-columns:repeat(3,1fr)}@media(max-width:900px){.kits-grid{grid-template-columns:repeat(2,1fr)!important}}@media(max-width:480px){.kits-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}}`}</style>
         </div>
       </section>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  FEATURES                                 ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section
-        id="features"
-        className="section"
-        style={{ background: "var(--navy-2)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}
-      >
+      {/* ══ FEATURES (Interactive) ══ */}
+      <section id="features" className="section" style={{background:"var(--navy-2)",borderTop:"1px solid var(--border)",borderBottom:"1px solid var(--border)"}}>
         <div className="section-inner">
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
-              <span className="eyebrow">Why Choose Us</span>
-              <h2 className="s-title">
-                Everything You Need to{" "}
-                <span className="grad-orange">Start Building</span>
-              </h2>
-              <p className="s-sub" style={{ margin: "0 auto" }}>
-                We&apos;ve thought of everything so you and your kids can just focus on creating.
-              </p>
-            </div>
-          </FadeUp>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 18,
-          }} className="feat-grid">
-            {FEATURES.map((f, i) => (
-              <FadeUp key={f.title} delay={i * 0.06}>
-                <div className="feat-card">
-                  <div className="feat-icon" style={{ background: `${f.accent}14` }}>
-                    {f.icon}
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: 15, fontWeight: 800, color: "#fff", marginBottom: 8 }}>
-                      {f.title}
-                    </h3>
-                    <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.7 }}>
-                      {f.desc}
-                    </p>
-                  </div>
-                </div>
+          <FadeUp><div style={{textAlign:"center",marginBottom:52}}>
+            <span className="eyebrow">Why Choose Us</span>
+            <h2 className="s-title">Everything You Need to <span className="grad-orange">Start Building</span></h2>
+            <p className="s-sub" style={{margin:"0 auto"}}>We&apos;ve thought of everything so you and your kids can just focus on creating.</p>
+          </div></FadeUp>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}} className="feat-grid">
+            {FEATURES.map((f,i)=>(
+              <FadeUp key={f.title} delay={i*.06}>
+                <motion.div whileHover={{y:-8,scale:1.02}} transition={{type:"spring",stiffness:300,damping:20}}
+                  style={{background:"var(--navy)",border:`1px solid rgba(255,255,255,.06)`,borderRadius:20,padding:"28px 24px",height:"100%",position:"relative",overflow:"hidden",cursor:"default",boxSizing:"border-box"}}
+                  onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor=`${f.accent}40`;(e.currentTarget as HTMLElement).style.boxShadow=`0 12px 40px ${f.accent}15`}}
+                  onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor="rgba(255,255,255,.06)";(e.currentTarget as HTMLElement).style.boxShadow=""}}>
+                  {/* Big illustration watermark */}
+                  <div style={{position:"absolute",right:-8,bottom:-8,fontSize:80,opacity:.06,pointerEvents:"none",userSelect:"none",lineHeight:1}}>{f.illus}</div>
+                  {/* Icon */}
+                  <div style={{width:52,height:52,borderRadius:15,background:`${f.accent}14`,border:`1px solid ${f.accent}22`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,marginBottom:16}}>{f.icon}</div>
+                  <h3 style={{fontSize:15,fontWeight:800,color:"#fff",marginBottom:8}}>{f.title}</h3>
+                  <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.72}}>{f.desc}</p>
+                  {/* Accent bottom bar */}
+                  <div style={{position:"absolute",bottom:0,left:0,right:0,height:2,background:`linear-gradient(90deg,${f.accent},transparent)`,opacity:.4,borderRadius:"0 0 20px 20px"}}/>
+                </motion.div>
               </FadeUp>
             ))}
           </div>
-
-          <style>{`
-            .feat-grid { grid-template-columns: repeat(3, 1fr); }
-            @media (max-width: 900px) { .feat-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-            @media (max-width: 540px) { .feat-grid { grid-template-columns: 1fr !important; } }
-          `}</style>
+          <style>{`.feat-grid{grid-template-columns:repeat(3,1fr)}@media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr)!important}}@media(max-width:540px){.feat-grid{grid-template-columns:1fr!important}}`}</style>
         </div>
       </section>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  HOW IT WORKS                             ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section id="how" className="section" style={{ background: "var(--navy)" }}>
+      {/* ══ HOW IT WORKS — Track Style ══ */}
+      <section id="how" className="section" style={{background:"var(--navy)"}}>
         <div className="section-inner">
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 60 }}>
-              <span className="eyebrow">Simple as 1-2-3</span>
-              <h2 className="s-title">
-                From Box to{" "}
-                <span className="grad-teal">Robot</span> in One Afternoon
-              </h2>
-            </div>
-          </FadeUp>
+          <FadeUp><div style={{textAlign:"center",marginBottom:56}}>
+            <span className="eyebrow">Simple as 1-2-3</span>
+            <h2 className="s-title">From Box to <span className="grad-teal">Robot</span> in One Afternoon</h2>
+          </div></FadeUp>
 
-          {/* Steps row */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 32,
-            marginBottom: 64,
-          }} className="steps-grid">
-            {[
-              { n: "01", emoji: "📦", title: "Order & Unbox", desc: "Choose your kit, order online, and receive it at your door. Everything is neatly packed and labelled — no missing parts, ever.", color: "#00d2c6" },
-              { n: "02", emoji: "🔧", title: "Build & Connect", desc: "Follow the visual step-by-step guide in the box. Snap, wire, and assemble — no soldering needed for beginner kits.", color: "#ff6b35" },
-              { n: "03", emoji: "💻", title: "Code & Play", desc: "Upload your first program, watch your robot move, then start customising. Graduate from blocks to Python as you level up.", color: "#ffd60a" },
-            ].map((step, i) => (
-              <FadeUp key={step.n} delay={i * 0.12}>
-                <div style={{ textAlign: "center" }}>
-                  <div className="step-icon"
-                    style={{ background: `${step.color}14`, border: `2px solid ${step.color}30` }}>
-                    {step.emoji}
-                    <div className="step-num" style={{ background: step.color }}>
-                      {step.n}
-                    </div>
-                  </div>
-                  <h3 style={{ fontSize: 17, fontWeight: 800, color: "#fff", marginBottom: 10 }}>
-                    {step.title}
-                  </h3>
-                  <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.75, maxWidth: 268, margin: "0 auto" }}>
-                    {step.desc}
-                  </p>
-                </div>
-              </FadeUp>
-            ))}
-          </div>
-
-          <style>{`
-            .steps-grid { grid-template-columns: repeat(3, 1fr); }
-            @media (max-width: 640px) { .steps-grid { grid-template-columns: 1fr !important; gap: 40px !important; } }
-          `}</style>
-
-          {/* PICO Bot spotlight card */}
-          <FadeUp delay={0.2}>
-            <div style={{
-              background: "var(--navy-2)",
-              border: "1px solid rgba(0,210,198,0.18)",
-              borderRadius: "var(--r-xl)",
-              padding: "40px 44px",
-              display: "grid",
-              gridTemplateColumns: "1fr auto",
-              gap: 40,
-              alignItems: "center",
-            }} className="spotlight-card">
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "var(--teal)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
-                  🤖 Featured — PICO Bot 4-Wheel Robot
-                </div>
-                <h3 style={{ fontSize: 24, fontWeight: 900, color: "#fff", lineHeight: 1.25, marginBottom: 14 }}>
-                  The Complete Wireless Robot Experience
-                </h3>
-                <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.75, marginBottom: 20, maxWidth: 520 }}>
-                  Ships with an acrylic chassis, 4 high-torque BO motors, an ESP32 driver board,
-                  servo-mounted ultrasonic sensor, and step-by-step assembly guide.
-                  Control it from your phone the same day.
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {["4-Wheel Drive", "App Controlled", "Obstacle Detection", "Expandable"].map(tag => (
-                    <span key={tag} style={{
-                      background: "rgba(0,210,198,0.08)", border: "1px solid rgba(0,210,198,0.22)",
-                      color: "var(--teal)", padding: "5px 14px", borderRadius: 99,
-                      fontSize: 12, fontWeight: 700,
+          {/* Track */}
+          <div style={{position:"relative",marginBottom:64}}>
+            {/* Track line */}
+            <div className="track-line"/>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,position:"relative",zIndex:2}} className="track-grid">
+              {[
+                {n:"01",emoji:"📦",label:"Order & Unbox",desc:"Choose your kit, order online, and receive at your door. Everything neatly packed — no missing parts, ever.",color:"#00d2c6"},
+                {n:"02",emoji:"🔧",label:"Build & Connect",desc:"Follow the visual step-by-step guide in the box. Snap, wire, assemble — no soldering for beginner kits.",color:"#ff6b35"},
+                {n:"03",emoji:"💻",label:"Code & Play",desc:"Upload your first program, watch your robot move, then start customising. Block code → Python as you level up.",color:"#ffd60a"},
+              ].map((step,idx)=>(
+                <FadeUp key={step.n} delay={idx*.12}>
+                  <div style={{textAlign:"center",position:"relative"}}>
+                    {/* Circle on track */}
+                    <motion.div whileHover={{scale:1.1}} style={{
+                      width:80,height:80,borderRadius:24,margin:"0 auto 24px",
+                      background:`${step.color}14`,border:`2px solid ${step.color}50`,
+                      display:"flex",alignItems:"center",justifyContent:"center",fontSize:34,
+                      position:"relative",boxShadow:`0 0 0 8px var(--navy), 0 0 0 9px ${step.color}20`,
+                      transition:"box-shadow .3s"
                     }}>
-                      {tag}
-                    </span>
+                      {step.emoji}
+                      <div style={{position:"absolute",top:-12,right:-12,width:28,height:28,borderRadius:"50%",background:step.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:"var(--navy)"}}>{step.n}</div>
+                    </motion.div>
+                    <h3 style={{fontSize:16,fontWeight:800,color:"#fff",marginBottom:10}}>{step.label}</h3>
+                    <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.75,maxWidth:256,margin:"0 auto"}}>{step.desc}</p>
+                  </div>
+                </FadeUp>
+              ))}
+            </div>
+          </div>
+          <style>{`
+            .track-line{display:block;position:absolute;top:40px;left:calc(16.67% + 8px);right:calc(16.67% + 8px);height:2px;background:linear-gradient(90deg,#00d2c6,#ff6b35,#ffd60a);opacity:.25;border-radius:99px}
+            .track-grid{grid-template-columns:repeat(3,1fr)}
+            @media(max-width:640px){.track-line{display:none!important}.track-grid{grid-template-columns:1fr!important;gap:40px!important}}
+          `}</style>
+
+          {/* Spotlight */}
+          <FadeUp delay={.2}>
+            <div style={{background:"var(--navy-2)",border:"1px solid rgba(0,210,198,.18)",borderRadius:24,padding:"36px 40px",display:"grid",gridTemplateColumns:"1fr 200px",gap:32,alignItems:"center"}} className="spotlight-card">
+              <div>
+                <p style={{fontSize:11,fontWeight:800,color:"var(--teal)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:10}}>🤖 Featured — PICO Bot 4-Wheel Robot</p>
+                <h3 style={{fontSize:22,fontWeight:900,color:"#fff",lineHeight:1.25,marginBottom:12}}>The Complete Wireless Robot Experience</h3>
+                <p style={{fontSize:14,color:"var(--muted)",lineHeight:1.75,marginBottom:18}}>Ships with acrylic chassis, 4 high-torque BO motors, ESP32 driver board, servo-mounted ultrasonic sensor & assembly guide. Control from your phone the same day.</p>
+                <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+                  {["4-Wheel Drive","App Controlled","Obstacle Detection","Expandable"].map(t=>(
+                    <span key={t} style={{background:"rgba(0,210,198,.08)",border:"1px solid rgba(0,210,198,.22)",color:"var(--teal)",padding:"5px 13px",borderRadius:99,fontSize:12,fontWeight:700}}>{t}</span>
                   ))}
                 </div>
               </div>
-              <div style={{ width: 200, flexShrink: 0 }}>
-                <div style={{ borderRadius: 18, overflow: "hidden", border: "1px solid rgba(0,210,198,0.14)" }}>
-                  <img
-                    src="https://res.cloudinary.com/drwys1ksu/image/upload/v1770959235/3_bjhlkz.png"
-                    alt="PICO Bot side view"
-                    style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block" }}
-                  />
-                </div>
+              <div style={{borderRadius:16,overflow:"hidden",border:"1px solid rgba(0,210,198,.12)"}}>
+                <img src="https://res.cloudinary.com/drwys1ksu/image/upload/v1770959235/3_bjhlkz.png" alt="PICO Bot side" style={{width:"100%",aspectRatio:"1/1",objectFit:"cover",display:"block"}}/>
               </div>
             </div>
-            <style>{`
-              .spotlight-card { grid-template-columns: 1fr auto; }
-              @media (max-width: 700px) {
-                .spotlight-card {
-                  grid-template-columns: 1fr !important;
-                  padding: 28px 24px !important;
-                }
-                .spotlight-card > div:last-child { width: 100% !important; max-width: 220px; }
-              }
-            `}</style>
           </FadeUp>
+          <style>{`.spotlight-card{grid-template-columns:1fr 200px}@media(max-width:640px){.spotlight-card{grid-template-columns:1fr!important;padding:24px!important}}`}</style>
         </div>
       </section>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  FOR PARENTS                              ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section
-        id="parents"
-        className="section"
-        style={{ background: "var(--navy-2)", borderTop: "1px solid var(--border)" }}
-      >
+      {/* ══ REVIEWS — Swipeable Carousel ══ */}
+      <section id="reviews" className="section" style={{background:"var(--navy-2)",borderTop:"1px solid var(--border)"}}>
         <div className="section-inner">
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 64,
-            alignItems: "center",
-          }} className="parents-grid">
-            {/* Left — image */}
-            <FadeUp>
-              <div style={{ position: "relative", borderRadius: "var(--r-xl)", overflow: "hidden" }}>
-                <img
-                  src="https://res.cloudinary.com/drwys1ksu/image/upload/v1770876991/IoT-Beginners-Pack-630x630_c2gz3b.png"
-                  alt="IoT Beginners Kit"
-                  style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }}
-                />
-                {/* Trust float badges */}
-                <motion.div
-                  animate={{ y: [-6, 6, -6] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  style={{
-                    position: "absolute", bottom: 20, left: 20,
-                    background: "rgba(7,13,26,0.92)", backdropFilter: "blur(12px)",
-                    border: "1px solid rgba(0,210,198,0.28)", borderRadius: 14,
-                    padding: "14px 18px",
-                  }}
-                >
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "var(--teal)" }}>RoHS ✓</div>
-                  <div style={{ fontSize: 11, color: "var(--muted)" }}>Child Safe Certified</div>
-                </motion.div>
-                <motion.div
-                  animate={{ y: [6, -6, 6] }}
-                  transition={{ repeat: Infinity, duration: 4.5, delay: 0.6, ease: "easeInOut" }}
-                  style={{
-                    position: "absolute", top: 20, right: 20,
-                    background: "rgba(7,13,26,0.92)", backdropFilter: "blur(12px)",
-                    border: "1px solid rgba(255,107,53,0.28)", borderRadius: 14,
-                    padding: "14px 18px",
-                  }}
-                >
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#ff6b35" }}>STEM ✓</div>
-                  <div style={{ fontSize: 11, color: "var(--muted)" }}>Curriculum Aligned</div>
-                </motion.div>
-              </div>
-            </FadeUp>
+          <FadeUp><div style={{textAlign:"center",marginBottom:48}}>
+            <span className="eyebrow">Reviews</span>
+            <h2 className="s-title">What Parents & Teachers <span className="grad-teal">Are Saying</span></h2>
+            <p className="s-sub" style={{margin:"0 auto"}}>Real feedback from real families across India 🇮🇳</p>
+          </div></FadeUp>
 
-            {/* Right — content */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-              <FadeUp delay={0.08}>
-                <span className="eyebrow">For Parents</span>
-                <h2 className="s-title">
-                  More Than a Toy.<br />
-                  <span className="grad-orange">An Investment.</span>
-                </h2>
-                <p style={{ fontSize: 16, color: "var(--muted)", lineHeight: 1.75, marginTop: 14 }}>
-                  Every kit is designed to turn screen time into skill-building time. Your child will learn
-                  real programming, physical computing, and problem-solving — without even realising they&apos;re learning.
-                </p>
-              </FadeUp>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {[
-                  { icon: <Zap size={17} />, title: "Real STEM Skills", desc: "Logic, coding, circuits, and engineering — built into every project.", color: "#ffd60a" },
-                  { icon: <Shield size={17} />, title: "Parent-Approved Safety", desc: "All materials are non-toxic, RoHS certified, and fully child-safe.", color: "#22c55e" },
-                  { icon: <Cpu size={17} />, title: "Grows With Them", desc: "Start with blocks. Graduate to Python. The same kit, infinite depth.", color: "#38bdf8" },
-                  { icon: <Leaf size={17} />, title: "Offline & Hands-On", desc: "No addictive apps. Kids build real things and feel genuinely proud.", color: "#a78bfa" },
-                ].map((item, i) => (
-                  <FadeUp key={item.title} delay={0.12 + i * 0.07}>
-                    <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                      <div style={{
-                        width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                        background: `${item.color}12`, border: `1px solid ${item.color}28`,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: item.color,
-                      }}>
-                        {item.icon}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: "#fff", marginBottom: 3 }}>
-                          {item.title}
-                        </div>
-                        <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.65 }}>
-                          {item.desc}
-                        </div>
-                      </div>
-                    </div>
-                  </FadeUp>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <style>{`
-            .parents-grid { grid-template-columns: 1fr 1fr; }
-            @media (max-width: 768px) {
-              .parents-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
-            }
-          `}</style>
-        </div>
-      </section>
-
-      {/* ╔═══════════════════════════════════════════╗
-          ║  REVIEWS                                  ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section id="reviews" className="section" style={{ background: "var(--navy)" }}>
-        <div className="section-inner">
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 52 }}>
-              <span className="eyebrow">Reviews</span>
-              <h2 className="s-title">
-                What Parents & Teachers
-                <br />
-                <span className="grad-teal">Are Saying</span>
-              </h2>
-              <p className="s-sub" style={{ margin: "0 auto" }}>
-                Real feedback from real families across India.
-              </p>
-            </div>
-          </FadeUp>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 18,
-          }} className="reviews-grid">
-            {REVIEWS.map((r, i) => (
-              <FadeUp key={r.name} delay={i * 0.08}>
-                <div className="review-card" style={{ height: "100%" }}>
-                  {/* Stars */}
-                  <div style={{ display: "flex", gap: 3 }}>
-                    {Array.from({ length: r.rating }).map((_, j) => (
-                      <Star key={j} size={14} style={{ fill: "#ffd60a", color: "#ffd60a" }} />
-                    ))}
-                  </div>
-                  {/* Text */}
-                  <p style={{ fontSize: 14, color: "#cbd5e1", lineHeight: 1.75, flex: 1 }}>
-                    &ldquo;{r.text}&rdquo;
-                  </p>
-                  {/* Author */}
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    paddingTop: 16, borderTop: "1px solid var(--border)",
-                  }}>
-                    <div style={{
-                      width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
-                      background: `${r.accent}18`, border: `2px solid ${r.accent}35`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 15, fontWeight: 900, color: r.accent,
-                    }}>
-                      {r.initial}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{r.name}</div>
-                      <div style={{ fontSize: 11, color: "var(--muted)" }}>{r.role}</div>
-                    </div>
+          {/* Desktop grid */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:16}} className="reviews-desktop">
+            {REVIEWS.map((r,i)=>(
+              <FadeUp key={r.name} delay={i*.07}>
+                <div className="review-card" style={{height:"100%"}}>
+                  <div style={{display:"flex",gap:3,marginBottom:2}}>{Array.from({length:r.rating}).map((_,j)=><Star key={j} size={13} style={{fill:"#ffd60a",color:"#ffd60a"}}/>)}</div>
+                  <p style={{fontSize:13,color:"#cbd5e1",lineHeight:1.78,flex:1}}>&ldquo;{r.text}&rdquo;</p>
+                  <div style={{display:"flex",alignItems:"center",gap:11,paddingTop:14,borderTop:"1px solid var(--border)"}}>
+                    <div style={{width:36,height:36,borderRadius:"50%",background:`${r.accent}18`,border:`2px solid ${r.accent}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:r.accent,flexShrink:0}}>{r.initial}</div>
+                    <div><div style={{fontSize:13,fontWeight:800,color:"#fff"}}>{r.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>{r.role}</div></div>
                   </div>
                 </div>
               </FadeUp>
             ))}
           </div>
 
+          {/* Mobile carousel */}
+          <div className="reviews-mobile" style={{display:"none"}}>
+            <div style={{overflow:"hidden",borderRadius:20}}>
+              <motion.div
+                key={reviewIdx}
+                initial={{opacity:0,x:60}}
+                animate={{opacity:1,x:0}}
+                exit={{opacity:0,x:-60}}
+                transition={{duration:.3}}
+                drag="x"
+                dragConstraints={{left:0,right:0}}
+                onDragStart={(_,i)=>{dragStartX.current=(i as {point:{x:number}}).point.x}}
+                onDragEnd={(_,info)=>{if(info.offset.x<-40)nextReview();else if(info.offset.x>40)prevReview()}}
+                style={{cursor:"grab"}}
+              >
+                {(() => {
+                  const r = REVIEWS[reviewIdx];
+                  return (
+                    <div className="review-card" style={{padding:24}}>
+                      <div style={{display:"flex",gap:3,marginBottom:10}}>{Array.from({length:r.rating}).map((_,j)=><Star key={j} size={14} style={{fill:"#ffd60a",color:"#ffd60a"}}/>)}</div>
+                      <p style={{fontSize:14,color:"#cbd5e1",lineHeight:1.78,marginBottom:20}}>&ldquo;{r.text}&rdquo;</p>
+                      <div style={{display:"flex",alignItems:"center",gap:12,paddingTop:16,borderTop:"1px solid var(--border)"}}>
+                        <div style={{width:42,height:42,borderRadius:"50%",background:`${r.accent}18`,border:`2px solid ${r.accent}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:900,color:r.accent}}>{r.initial}</div>
+                        <div><div style={{fontSize:14,fontWeight:800,color:"#fff"}}>{r.name}</div><div style={{fontSize:12,color:"var(--muted)"}}>{r.role}</div></div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            </div>
+            {/* Controls */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:20}}>
+              <button onClick={prevReview} disabled={reviewIdx===0} style={{width:38,height:38,borderRadius:"50%",border:"1px solid var(--border)",background:"rgba(255,255,255,.04)",color:reviewIdx===0?"var(--muted)":"#fff",cursor:reviewIdx===0?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s"}}><ChevronLeft size={16}/></button>
+              <div style={{display:"flex",gap:6}}>
+                {REVIEWS.map((_,i)=><div key={i} onClick={()=>setReviewIdx(i)} style={{width:i===reviewIdx?20:6,height:6,borderRadius:99,background:i===reviewIdx?"var(--teal)":"rgba(255,255,255,.15)",transition:"all .3s",cursor:"pointer"}}/>)}
+              </div>
+              <button onClick={nextReview} disabled={reviewIdx===REVIEWS.length-1} style={{width:38,height:38,borderRadius:"50%",border:"1px solid var(--border)",background:"rgba(255,255,255,.04)",color:reviewIdx===REVIEWS.length-1?"var(--muted)":"#fff",cursor:reviewIdx===REVIEWS.length-1?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s"}}><ChevronRight size={16}/></button>
+            </div>
+          </div>
+
           <style>{`
-            .reviews-grid { grid-template-columns: repeat(4, 1fr); }
-            @media (max-width: 900px) { .reviews-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-            @media (max-width: 480px) { .reviews-grid { grid-template-columns: 1fr !important; } }
+            .reviews-desktop{grid-template-columns:repeat(3,1fr)}
+            @media(max-width:900px){.reviews-desktop{grid-template-columns:repeat(2,1fr)!important}}
+            @media(max-width:640px){.reviews-desktop{display:none!important}.reviews-mobile{display:block!important}}
           `}</style>
         </div>
       </section>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  CTA BANNER                               ║
-          ╚═══════════════════════════════════════════╝ */}
-      <section
-        className="section"
-        style={{
-          background: "var(--navy-2)",
-          borderTop: "1px solid var(--border)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse at 50% 120%, rgba(0,210,198,0.08), transparent 70%)",
-        }} />
-        <div className="section-inner" style={{ position: "relative", zIndex: 1 }}>
-          <FadeUp>
-            <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto" }}>
-              <motion.div
-                animate={{ rotate: [0, 12, -10, 0], scale: [1, 1.12, 1] }}
-                transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
-                style={{ fontSize: 60, marginBottom: 24, display: "inline-block" }}
-              >
-                🚀
-              </motion.div>
-              <h2 style={{
-                fontSize: "clamp(28px, 4.5vw, 50px)",
-                fontWeight: 900, letterSpacing: "-0.03em",
-                lineHeight: 1.12, color: "#fff", marginBottom: 16,
-              }}>
-                Ready to Build Your<br />
-                <span className="grad-teal">First Robot?</span>
-              </h2>
-              <p style={{ fontSize: 17, color: "var(--muted)", lineHeight: 1.7, marginBottom: 36 }}>
-                Join 500+ builders across India. Kits starting at just ₹899.<br />
-                Free shipping · 30-day returns · Guaranteed quality.
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
-                <a href="#kits" className="btn btn-primary" style={{ fontSize: 15, padding: "14px 30px" }}>
-                  <ShoppingCart size={18} /> Shop All Kits
-                </a>
-                <a
-                  href="https://wa.me/919999999999"
-                  target="_blank" rel="noopener noreferrer"
-                  className="btn btn-ghost"
-                  style={{ fontSize: 15, padding: "14px 30px" }}
-                >
-                  💬 WhatsApp Us
-                </a>
-              </div>
+      {/* ══ CTA ══ */}
+      <section className="section" style={{background:"var(--navy)",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 50% 110%,rgba(0,210,198,.08),transparent 70%)",pointerEvents:"none"}}/>
+        <div className="section-inner" style={{position:"relative",zIndex:1}}>
+          <FadeUp><div style={{textAlign:"center",maxWidth:600,margin:"0 auto"}}>
+            <motion.div animate={{rotate:[0,12,-10,0],scale:[1,1.1,1]}} transition={{repeat:Infinity,duration:4.5,ease:"easeInOut"}} style={{fontSize:56,marginBottom:20,display:"inline-block"}}>🚀</motion.div>
+            <h2 style={{fontSize:"clamp(26px,4.5vw,48px)",fontWeight:900,letterSpacing:"-.03em",lineHeight:1.12,color:"#fff",marginBottom:14}}>
+              Ready to Build Your<br/><span className="grad-teal">First Robot?</span>
+            </h2>
+            <p style={{fontSize:16,color:"var(--muted)",lineHeight:1.7,marginBottom:32}}>
+              Join 500+ builders across India. Kits starting at just ₹899.<br/>Free shipping · 30-day returns · Guaranteed quality.
+            </p>
+            <div style={{display:"flex",flexWrap:"wrap",gap:12,justifyContent:"center"}}>
+              <a href="#kits" className="btn btn-primary" style={{padding:"14px 28px",fontSize:15}}><ShoppingCart size={17}/> Shop All Kits</a>
+              <a href={WA} target="_blank" rel="noopener noreferrer" className="btn" style={{background:"#25D366",color:"#fff",padding:"14px 28px",fontSize:15}}><MessageCircle size={17}/> Chat on WhatsApp</a>
             </div>
-          </FadeUp>
+          </div></FadeUp>
         </div>
       </section>
 
-      {/* ╔═══════════════════════════════════════════╗
-          ║  FOOTER                                   ║
-          ╚═══════════════════════════════════════════╝ */}
-      <footer style={{
-        background: "var(--navy)",
-        borderTop: "1px solid var(--border)",
-        paddingTop: 56, paddingBottom: 32,
-      }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          {/* Top row */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1.5fr 1fr 1fr 1fr",
-            gap: 40,
-            marginBottom: 48,
-          }} className="footer-grid">
+      {/* ══ FOOTER ══ */}
+      <footer style={{background:"var(--navy-2)",borderTop:"1px solid var(--border)",paddingTop:52,paddingBottom:28}}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1.6fr 1fr 1fr 1fr",gap:36,marginBottom:44}} className="footer-grid">
             {/* Brand */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <Image src="/logo.png" alt="PICO BOT" width={36} height={36}
-                  style={{ borderRadius: 8, display: "block" }} />
-                <span style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>PICO BOT</span>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+                <Image src="/logo.png" alt="PICO BOT" width={34} height={34} style={{borderRadius:8,display:"block"}}/>
+                <span style={{fontSize:15,fontWeight:900,color:"#fff"}}>PICO BOT</span>
               </div>
-              <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.7 }}>
-                India&apos;s favourite robotics & electronics kits for young builders. Powered by Thinking Robot.
-              </p>
+              <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.72,marginBottom:16}}>India&apos;s favourite robotics & electronics kits for young builders. Powered by Thinking Robot.</p>
+              <div style={{display:"flex",gap:8}}>
+                {[
+                  {href:IG, label:"Instagram", color:"#E1306C", icon:"📸"},
+                  {href:FB, label:"Facebook",  color:"#1877F2", icon:"👤"},
+                  {href:TW, label:"X",          color:"#e2e8f0", icon:"✖"},
+                  {href:WA, label:"WhatsApp",  color:"#25D366", icon:"💬"},
+                ].map(s=>(
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label}
+                    style={{width:34,height:34,borderRadius:9,background:"rgba(255,255,255,.04)",border:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:s.color,transition:"border-color .15s,transform .15s"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=s.color+"60";e.currentTarget.style.transform="scale(1.1)"}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.transform=""}}>
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
             </div>
 
             {/* Kits */}
             <div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.09em", marginBottom: 16 }}>
-                Kits
-              </div>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                {KITS.map(k => (
-                  <li key={k.id}>
-                    <a
-                      href={`https://www.thinkingrobot.in/products/${k.slug}`}
-                      target="_blank" rel="noopener noreferrer"
-                      style={{ fontSize: 13, color: "var(--muted)", transition: "color 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                      onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
-                    >
-                      {k.name.split("|")[0].trim()}
-                    </a>
-                  </li>
+              <div style={{fontSize:10,fontWeight:800,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:14}}>Kits</div>
+              <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:9}}>
+                {KITS.map(k=>(
+                  <li key={k.id}><a href={`https://thinkingrobot.in/products/${k.slug}`} target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"var(--muted)",transition:"color .15s"}} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="var(--muted)"}>{k.name}</a></li>
                 ))}
               </ul>
             </div>
 
             {/* Learn */}
             <div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.09em", marginBottom: 16 }}>
-                Learn
-              </div>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                {["Getting Started", "Arduino Tutorials", "Python Guides", "Project Ideas", "Community"].map(l => (
-                  <li key={l}>
-                    <a href="#" style={{ fontSize: 13, color: "var(--muted)", transition: "color 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                      onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
-                    >{l}</a>
-                  </li>
+              <div style={{fontSize:10,fontWeight:800,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:14}}>Learn</div>
+              <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:9}}>
+                {[["Getting Started",DOCS],["Arduino Tutorials",DOCS],["Python Guides",DOCS],["Project Ideas",DOCS],["Community",WA]].map(([l,h])=>(
+                  <li key={l}><a href={h} target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"var(--muted)",transition:"color .15s"}} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="var(--muted)"}>{l}</a></li>
                 ))}
               </ul>
             </div>
 
             {/* Company */}
             <div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.09em", marginBottom: 16 }}>
-                Company
-              </div>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                {["About Us", "Contact", "Shipping Policy", "Return Policy", "Privacy Policy"].map(l => (
-                  <li key={l}>
-                    <a href="#" style={{ fontSize: 13, color: "var(--muted)", transition: "color 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                      onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
-                    >{l}</a>
-                  </li>
+              <div style={{fontSize:10,fontWeight:800,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:14}}>Company</div>
+              <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:9}}>
+                {[["Our Store",SITE],["WhatsApp Us",WA],["Instagram",IG],["Facebook",FB],["Tutorials",DOCS]].map(([l,h])=>(
+                  <li key={l}><a href={h} target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"var(--muted)",transition:"color .15s"}} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="var(--muted)"}>{l}</a></li>
                 ))}
               </ul>
             </div>
           </div>
 
-          <style>{`
-            .footer-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
-            @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }
-            @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr !important; } }
-          `}</style>
+          <style>{`.footer-grid{grid-template-columns:1.6fr 1fr 1fr 1fr}@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr!important}}@media(max-width:480px){.footer-grid{grid-template-columns:1fr!important}}`}</style>
 
-          {/* Bottom bar */}
-          <div style={{
-            paddingTop: 24,
-            borderTop: "1px solid var(--border)",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 12,
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}>
-            <span style={{ fontSize: 12, color: "var(--muted)" }}>
-              © 2026 Thinking Robot. All rights reserved. 🇮🇳 Proudly Made in India
-            </span>
-            <div style={{ display: "flex", gap: 10 }}>
-              {["In", "Yt", "WA", "X"].map(s => (
-                <a key={s} href="#" style={{
-                  width: 34, height: 34, borderRadius: 9,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid var(--border)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 12, fontWeight: 800,
-                  color: "var(--muted)", transition: "color 0.15s, border-color 0.15s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "rgba(0,210,198,0.3)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
-                >
-                  {s}
-                </a>
-              ))}
-            </div>
+          <div style={{paddingTop:20,borderTop:"1px solid var(--border)",display:"flex",flexWrap:"wrap",gap:10,alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontSize:12,color:"var(--muted)"}}>© 2026 Thinking Robot · <a href={SITE} target="_blank" rel="noopener noreferrer" style={{color:"var(--teal)"}}>thinkingrobot.in</a> 🇮🇳</span>
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="btn" style={{background:"#25D366",color:"#fff",fontSize:12,padding:"7px 14px"}}><MessageCircle size={12}/> Need help? WhatsApp us</a>
           </div>
         </div>
       </footer>
