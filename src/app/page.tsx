@@ -63,7 +63,7 @@ export default function Home() {
   const nextReview = () => setReviewIdx(i => Math.min(REVIEWS.length-1, i+1));
 
   return (
-    <div style={{background:"var(--navy)",minHeight:"100vh",overflowX:"hidden"}}>
+    <div style={{background:"var(--navy)",minHeight:"100vh",overflowX:"hidden",maxWidth:"100vw",width:"100%",position:"relative"}}>
 
       {/* ══ NAVBAR ══ */}
       <header className="glass" style={{position:"fixed",top:0,left:0,right:0,height:"var(--nav-h)",zIndex:100,borderBottom:"1px solid var(--border)"}}>
@@ -202,8 +202,8 @@ export default function Home() {
       </section>
 
       {/* ══ TRUST STRIP (Parents teaser — before kits) ══ */}
-      <section style={{background:"linear-gradient(135deg,var(--navy-2),var(--navy-3))",borderTop:"1px solid var(--border)",borderBottom:"1px solid var(--border)",padding:"40px 24px"}}>
-        <div style={{maxWidth:1200,margin:"0 auto"}}>
+      <section style={{background:"linear-gradient(135deg,var(--navy-2),var(--navy-3))",borderTop:"1px solid var(--border)",borderBottom:"1px solid var(--border)",padding:"40px 24px",overflow:"hidden"}}>
+        <div style={{maxWidth:1200,margin:"0 auto",overflow:"hidden"}}>
           <p style={{textAlign:"center",fontSize:12,fontWeight:800,color:"var(--teal)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:24}}>⭐ Why Parents Trust Us</p>
           <div className="trust-wrap"><div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16}} className="trust-grid">
             {[
@@ -225,18 +225,11 @@ export default function Home() {
         <style>{`
           .trust-grid{grid-template-columns:repeat(4,1fr);gap:16px}
           @media(max-width:700px){
-            .trust-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px}
-            .trust-wrap::-webkit-scrollbar{display:none}
-            .trust-grid{
-              grid-template-columns:repeat(4,minmax(140px,1fr))!important;
-              gap:10px!important;
-              width:max-content;
-              min-width:100%
-            }
-            .trust-grid>div{padding:12px 14px!important;border-radius:12px!important}
-            .trust-grid .ti{font-size:20px!important}
-            .trust-grid .tt{font-size:11px!important}
-            .trust-grid .ts{font-size:10px!important;margin-top:1px!important}
+            .trust-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;width:100%!important}
+            .trust-grid>div{padding:10px 12px!important;border-radius:10px!important;gap:8px!important}
+            .trust-grid .ti{font-size:18px!important}
+            .trust-grid .tt{font-size:10px!important}
+            .trust-grid .ts{font-size:9px!important;margin-top:0!important}
           }
         `}</style>
       </section>
@@ -313,10 +306,9 @@ export default function Home() {
             @media(max-width:900px){.kits-grid{grid-template-columns:repeat(2,1fr)!important}}
             @media(max-width:600px){
               .kits-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;align-items:start!important}
-              .kit-card-img{height:120px!important}
               .kit-card-body{padding:10px!important;gap:6px!important}
               .kit-card-body h3{font-size:12px!important;line-height:1.25!important;margin-bottom:0!important}
-              .kit-card-body>div>p{font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block!important;color:var(--muted)}
+              .kit-card-body>div>p{font-size:10px!important;overflow:hidden;text-overflow:ellipsis;display:block!important;color:var(--muted)}
               .kit-bullets{display:flex!important;gap:4px!important}
               .kit-bullets li{font-size:10px!important;gap:4px!important}
               .kit-bullets li:nth-child(n+3){display:none!important}

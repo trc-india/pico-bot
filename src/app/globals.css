@@ -47,6 +47,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   min-height: 100vh;
+  max-width: 100vw;
 }
 img { display: block; max-width: 100%; height: auto; }
 a   { text-decoration: none; color: inherit; }
@@ -264,6 +265,12 @@ a   { text-decoration: none; color: inherit; }
   position: relative;
   flex-shrink: 0;
 }
+@media (max-width: 600px) {
+  .kit-card-img {
+    aspect-ratio: unset;
+    height: 110px;
+  }
+}
 .kit-card-img img {
   width: 100%;
   height: 100%;
@@ -368,7 +375,8 @@ a   { text-decoration: none; color: inherit; }
 
 /* ── Responsive helpers ─────────────────────────────────────── */
 @media (max-width: 768px) {
-  .section { padding: 72px 0; }
+  .section { padding: 72px 0; overflow-x: hidden; }
+  .section-inner { overflow-x: hidden; }
   .s-title { font-size: clamp(24px, 6vw, 36px); }
   .hide-sm { display: none !important; }
   .btn { padding: 12px 22px; font-size: 13px; }
