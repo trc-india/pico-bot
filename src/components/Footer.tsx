@@ -51,6 +51,8 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Link columns grouped for mobile grid */}
+          <div className="footer-links-wrap" style={{ display: "contents" }}>
           {/* Kits */}
           <div>
             <div style={{ fontSize: 10, fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: ".09em", marginBottom: 14 }}>Kits</div>
@@ -91,18 +93,20 @@ export default function Footer() {
             <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
                 ["Our Store", SITE_URL],
+                ["Contact Us", "/contact"],
                 ["WhatsApp Us", WA_LINK],
                 ["Instagram", INSTAGRAM],
                 ["Facebook", FACEBOOK],
                 ["Tutorials", DOCS_URL],
               ].map(([l, h]) => (
                 <li key={l}>
-                  <a href={h} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "var(--text-secondary)", transition: "color .15s" }}>
+                  <a href={h} target={h.startsWith("/") ? undefined : "_blank"} rel={h.startsWith("/") ? undefined : "noopener noreferrer"} style={{ fontSize: 13, color: "var(--text-secondary)", transition: "color .15s" }}>
                     {l}
                   </a>
                 </li>
               ))}
             </ul>
+          </div>
           </div>
         </div>
 
@@ -123,8 +127,14 @@ export default function Footer() {
 
       <style>{`
         .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
-        @media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr!important}}
-        @media(max-width:480px){.footer-grid{grid-template-columns:1fr!important}}
+        @media(max-width:768px){
+          .footer-grid{grid-template-columns:1fr!important;gap:24px!important}
+          .footer-grid>div:first-child{border-bottom:1px solid var(--border);padding-bottom:20px}
+          .footer-links-wrap{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:16px!important}
+        }
+        @media(max-width:400px){
+          .footer-links-wrap{grid-template-columns:repeat(2,1fr)!important}
+        }
       `}</style>
     </footer>
   );

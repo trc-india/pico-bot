@@ -7,6 +7,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import HowItWorks from "@/components/HowItWorks";
 import VideoShowcase from "@/components/VideoShowcase";
 import ReviewsSection from "@/components/ReviewsSection";
+import ContactStrip from "@/components/ContactStrip";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 
@@ -23,6 +24,7 @@ export default function Home() {
         <HowItWorks />
         <VideoShowcase />
         <ReviewsSection />
+        <ContactStrip />
         <CTASection />
       </main>
       <Footer />

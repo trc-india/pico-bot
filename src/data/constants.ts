@@ -13,5 +13,6 @@ export const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "How It Works", href: "#how" },
   { label: "Reviews", href: "#reviews" },
+  { label: "Contact", href: "/contact" },
   { label: "Docs", href: "https://trc-docs.vercel.app/", external: true },
 ];
