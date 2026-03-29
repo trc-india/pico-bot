@@ -1,5 +1,5 @@
 export const WA_LINK = `https://wa.me/918275478093?text=${encodeURIComponent(
-  "Hi Thinking Robot! 👋 I'm interested in your PICO BOT kits. Can you help me choose the right one?"
+  "Hi Thinking Robot! 👋 I'm interested in your PICO DRIVE kits. Can you help me choose the right one?"
 )}`;
 export const SITE_URL = "https://thinkingrobot.in";
 export const DOCS_URL = "https://trc-docs.vercel.app/";

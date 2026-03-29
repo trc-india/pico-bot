@@ -28,7 +28,7 @@ export default function Navbar() {
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           <Image src="/logo.png" alt="Thinking Robot" width={36} height={36} style={{ borderRadius: 10 }} />
           <div>
-            <div style={{ fontSize: 15, fontWeight: 900, color: "var(--text)", letterSpacing: "-.02em", lineHeight: 1 }}>PICO BOT</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: "var(--text)", letterSpacing: "-.02em", lineHeight: 1 }}>PICO DRIVE</div>
             <div style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: ".08em", textTransform: "uppercase" }}>BY THINKING ROBOT</div>
           </div>
         </a>

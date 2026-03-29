@@ -88,7 +88,7 @@ export default function HowItWorks() {
         >
           <div className="card spotlight-card">
             <div>
-              <p style={{ fontSize: 11, fontWeight: 800, color: "var(--primary)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 10 }}>🤖 Featured — PICO Bot 4-Wheel Robot</p>
+              <p style={{ fontSize: 11, fontWeight: 800, color: "var(--primary)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 10 }}>🤖 Featured — PICO DRIVE 4-Wheel Robot</p>
               <h3 style={{ fontSize: 22, fontWeight: 900, color: "var(--text)", lineHeight: 1.25, marginBottom: 12 }}>The Complete Wireless Robot Experience</h3>
               <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.75, marginBottom: 18 }}>
                 Ships with acrylic chassis, 4 high-torque BO motors, ESP32 driver board, servo-mounted ultrasonic sensor & assembly guide.

@@ -13,7 +13,7 @@ export default function Footer() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <Image src="/logo.png" alt="PICO BOT" width={32} height={32} style={{ borderRadius: 8 }} />
-              <span style={{ fontSize: 15, fontWeight: 900, color: "var(--text)" }}>PICO BOT</span>
+              <span style={{ fontSize: 15, fontWeight: 900, color: "var(--text)" }}>PICO DRIVE</span>
             </div>
             <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 16 }}>
               India&apos;s favourite robotics &amp; electronics kits for young builders. Powered by Thinking Robot.

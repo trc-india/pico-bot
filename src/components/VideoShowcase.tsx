@@ -15,7 +15,7 @@ export default function VideoShowcase() {
               Watch Our <span className="grad-fun">Robots Move</span>
             </h2>
             <p className="section-subtitle">
-              Real videos from our workshop — see what you&apos;ll build with PICO BOT kits.
+              Real videos from our workshop — see what you&apos;ll build with PICO DRIVE kits.
             </p>
           </motion.div>
         </div>
@@ -42,7 +42,7 @@ export default function VideoShowcase() {
               </video>
             </div>
             <div style={{ padding: "16px 20px" }}>
-              <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>PICO Bot in Action 🤖</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>PICO Drive in Action 🤖</h3>
               <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>Watch the 4-wheel robot navigate obstacles autonomously</p>
             </div>
           </motion.div>
