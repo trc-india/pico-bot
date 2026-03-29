@@ -1,6 +1,7 @@
 "use client";
 import PlantNavbar from "./PlantNavbar";
 import PlantHero from "./PlantHero";
+import PlantInfoBanner from "./PlantInfoBanner";
 import { PlantTrustBadges, PlantMarquee, PlantCTA, PlantContactStrip } from "./PlantSections";
 import PlantComponents from "./PlantComponents";
 import PlantFeatures from "./PlantFeatures";
@@ -14,6 +15,7 @@ export default function PlantMonitorPage() {
       <PlantNavbar />
       <main>
         <PlantHero />
+        <PlantInfoBanner />
         <PlantTrustBadges />
         <PlantMarquee />
         <PlantComponents />
