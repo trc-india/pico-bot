@@ -5,7 +5,7 @@ import {
   LogIn, LogOut, RefreshCw, Phone, Mail, Calendar,
   Clock, User, Loader2, ChevronDown, ChevronUp,
   MessageCircle, ShieldCheck, AlertTriangle, Trash2,
-  Check, Edit3, X, Save,
+  Check, Edit3, X, Save, BarChart3,
 } from "lucide-react";
 
 interface Booking {
@@ -272,9 +272,14 @@ export default function AdminDashboard() {
           <ShieldCheck size={20} style={{ color: "#0891b2" }} />
           <span style={{ fontSize: 15, fontWeight: 800, color: "#1e293b" }}>PICO BOT Admin</span>
         </div>
-        <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#64748b", cursor: "pointer", background: "none", borderWidth: 0, borderStyle: "none", borderColor: "transparent", padding: "8px 14px", borderRadius: 8 }}>
-          <LogOut size={14} /> Logout
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => window.location.href = "/admin/analytics"} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#0891b2", cursor: "pointer", background: "rgba(8,145,178,.06)", borderWidth: "1px", borderStyle: "solid", borderColor: "rgba(8,145,178,.15)", borderRadius: 8, padding: "8px 14px" }}>
+            <BarChart3 size={14} /> Analytics
+          </button>
+          <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#64748b", cursor: "pointer", background: "none", borderWidth: 0, borderStyle: "none", borderColor: "transparent", padding: "8px 14px", borderRadius: 8 }}>
+            <LogOut size={14} /> Logout
+          </button>
+        </div>
       </header>
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px" }}>
